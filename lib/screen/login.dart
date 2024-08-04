@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:final_login/constants/color.dart';
-import 'package:final_login/screen/homepage.dart';
+import 'package:final_login/screen/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -40,9 +40,13 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+        int userId = int.parse(userData['id']);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(
+            builder: (context) => ProfilePage(userId: userId),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
