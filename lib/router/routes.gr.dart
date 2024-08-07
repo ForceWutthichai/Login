@@ -35,45 +35,42 @@ abstract class $AppRouter extends _i7.RootStackRouter {
 class LoginRoute extends _i7.PageRouteInfo<void> {
   const LoginRoute({List<_i7.PageRouteInfo>? children})
       : super(
-          LoginRoute.name,
-          initialChildren: children,
-        );
+        LoginRoute.name,
+        initialChildren: children,
+      );
 
   static const String name = 'LoginRoute';
 
   static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
 }
 
-/// generated route for
 /// [_i2.RegisterPage1]
 class RegisterRoute extends _i7.PageRouteInfo<void> {
   const RegisterRoute({List<_i7.PageRouteInfo>? children})
       : super(
-          RegisterRoute.name,
-          initialChildren: children,
-        );
+        RegisterRoute.name,
+        initialChildren: children,
+      );
 
   static const String name = 'RegisterRoute';
 
   static const _i7.PageInfo<void> page = _i7.PageInfo<void>(name);
 }
 
-/// generated route for
 /// [_i3.ProfilePage]
 class ProfileRoute extends _i7.PageRouteInfo<ProfileRouteArgs> {
   ProfileRoute({
     required int userId,
     List<_i7.PageRouteInfo>? children,
   }) : super(
-          ProfileRoute.name,
-          args: ProfileRouteArgs(userId: userId),
-          initialChildren: children,
-        );
+        ProfileRoute.name,
+        args: ProfileRouteArgs(userId: userId),
+        initialChildren: children,
+      );
 
   static const String name = 'ProfileRoute';
 
-  static const _i7.PageInfo<ProfileRouteArgs> page =
-      _i7.PageInfo<ProfileRouteArgs>(name);
+  static const _i7.PageInfo<ProfileRouteArgs> page = _i7.PageInfo<ProfileRouteArgs>(name);
 }
 
 class ProfileRouteArgs {

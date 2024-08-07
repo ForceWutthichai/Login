@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'id_card': _idCardController.text,
+          'id_card': _idCardController.text.replaceAll('-', ''), // Remove dashes before sending
           'password': _passwordController.text,
         }),
       );
@@ -54,6 +54,52 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     }
+  }
+
+  String? _validateIdCard(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'กรุณากรอกรหัสบัตรประชาชน';
+    }
+
+    final idCardRegex = RegExp(r'^\d{1}-\d{4}-\d{5}-\d{2}-\d{1}$');
+    if (!idCardRegex.hasMatch(value)) {
+      return 'รหัสบัตรประชาชนไม่ถูกต้อง';
+    }
+
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'กรุณากรอกรหัสผ่าน';
+    }
+
+    // Add any additional password requirements here
+    if (value.length < 8) {
+      return 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
+    }
+
+    return null;
+  }
+
+  void _formatIdCard() {
+    String text = _idCardController.text.replaceAll('-', '');
+    if (text.length > 1) {
+      text = text.substring(0, 1) + '-' + text.substring(1);
+    }
+    if (text.length > 6) {
+      text = text.substring(0, 6) + '-' + text.substring(6);
+    }
+    if (text.length > 12) {
+      text = text.substring(0, 12) + '-' + text.substring(12);
+    }
+    if (text.length > 15) {
+      text = text.substring(0, 15) + '-' + text.substring(15);
+    }
+    _idCardController.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
   }
 
   @override
@@ -100,9 +146,11 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide(color: borderColor, width: 1),
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณากรอกรหัสบัตรประชาชน'
-                          : null,
+                      validator: _validateIdCard,
+                      keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        _formatIdCard();
+                      },
                     ),
                     SizedBox(height: 25),
                     TextFormField(
@@ -127,9 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: _toggleVisibility,
                         ),
                       ),
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'กรุณากรอกรหัสผ่าน'
-                          : null,
+                      validator: _validatePassword,
                     ),
                     SizedBox(height: 40),
                     ElevatedButton(

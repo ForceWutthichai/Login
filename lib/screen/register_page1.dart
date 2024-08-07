@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:final_login/constants/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'register_page2.dart';
@@ -47,14 +48,44 @@ class _RegisterPage1State extends State<RegisterPage1> {
     );
   }
 
+  String formatIdCard(String idCard) {
+    return idCard.replaceAll('-', '');
+  }
+
+  String formatPhone(String phone) {
+    return phone.replaceAll('-', '');
+  }
+
+  String? _validateIdCard(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'กรุณากรอกเลขบัตรประชาชน';
+    }
+    final idCardRegex = RegExp(r'^\d{1}-\d{4}-\d{5}-\d{2}-\d{1}$');
+    if (!idCardRegex.hasMatch(value)) {
+      return 'รูปแบบเลขบัตรประชาชนไม่ถูกต้อง';
+    }
+    return null;
+  }
+
+  String? _validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'กรุณากรอกเบอร์โทร';
+    }
+    final phoneRegex = RegExp(r'^\d{3}-\d{3}-\d{4}$');
+    if (!phoneRegex.hasMatch(value)) {
+      return 'รูปแบบเบอร์โทรไม่ถูกต้อง';
+    }
+    return null;
+  }
+
   void _next() {
     if (_formKey.currentState!.validate()) {
       _patientData.addAll({
         'title_name': selectedTitle,
         'first_name': _firstNameController.text,
         'last_name': _lastNameController.text,
-        'id_card': _idCardController.text,
-        'phone': _phoneController.text,
+        'id_card': formatIdCard(_idCardController.text),
+        'phone': formatPhone(_phoneController.text),
         'gender': selectedGender,
         'date_birth': _convertToBuddhistYear(_selectedDate),
       });
@@ -185,13 +216,22 @@ class _RegisterPage1State extends State<RegisterPage1> {
                       borderSide: BorderSide(color: borderColor, width: 1),
                     ),
                   ),
-                  onSaved: (value) => _patientData['id_card'] = value,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'กรุณากรอกเลขบัตรประชาชน';
-                    }
-                    return null;
-                  },
+                  validator: _validateIdCard,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(13),
+                    TextInputFormatter.withFunction((oldValue, newValue) {
+                      String newText = newValue.text.replaceAllMapped(
+                        RegExp(r'(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})'),
+                        (Match m) => '${m[1]}-${m[2]}-${m[3]}-${m[4]}-${m[5]}',
+                      );
+                      return newValue.copyWith(
+                        text: newText,
+                        selection: TextSelection.collapsed(offset: newText.length),
+                      );
+                    }),
+                  ],
+                  onSaved: (value) => _patientData['id_card'] = formatIdCard(value!),
                 ),
                 SizedBox(height: 20),
                 Row(
@@ -212,13 +252,22 @@ class _RegisterPage1State extends State<RegisterPage1> {
                                 BorderSide(color: borderColor, width: 1),
                           ),
                         ),
-                        onSaved: (value) => _patientData['phone'] = value,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'กรุณากรอกเบอร์โทร';
-                          }
-                          return null;
-                        },
+                        onSaved: (value) => _patientData['phone'] = formatPhone(value!),
+                        validator: _validatePhone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            String newText = newValue.text.replaceAllMapped(
+                              RegExp(r'(\d{3})(\d{3})(\d{4})'),
+                              (Match m) => '${m[1]}-${m[2]}-${m[3]}',
+                            );
+                            return newValue.copyWith(
+                              text: newText,
+                              selection: TextSelection.collapsed(offset: newText.length),
+                            );
+                          }),
+                        ],
                       ),
                     ),
                     SizedBox(width: 5),

@@ -1,3 +1,4 @@
+import 'package:final_login/screen/edit_profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -46,6 +47,15 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
+  void _editProfile() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfilePage(profileData: profileData!),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (profileData == null) {
@@ -67,6 +77,10 @@ class _ProfilePageState extends State<ProfilePage> {
           IconButton(
             icon: Icon(Icons.logout),
             onPressed: _logout,
+          ),
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: _editProfile,
           ),
         ],
       ),
