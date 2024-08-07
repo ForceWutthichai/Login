@@ -47,13 +47,19 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
-  void _editProfile() {
-    Navigator.push(
+  Future<void> _editProfile() async {
+    final updatedProfileData = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => EditProfilePage(profileData: profileData!, userId: widget.userId!),
       ),
     );
+
+    if (updatedProfileData != null) {
+      setState(() {
+        profileData = updatedProfileData;
+      });
+    }
   }
 
   @override

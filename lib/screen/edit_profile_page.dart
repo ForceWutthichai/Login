@@ -15,11 +15,15 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late Map<String, dynamic> _formData;
+  late String selectedTitle;
+  late String selectedGender;
 
   @override
   void initState() {
     super.initState();
     _formData = Map<String, dynamic>.from(widget.profileData);
+    selectedTitle = _formData['title_name'];
+    selectedGender = _formData['gender'];
   }
 
   Future<void> _saveProfile() async {
@@ -35,7 +39,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Profile updated successfully')),
           );
-          Navigator.pop(context);
+          Navigator.pop(context, _formData);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to update profile')),
@@ -63,12 +67,59 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                _buildTextFormField('title_name', 'คำนำหน้า'),
+                DropdownButtonFormField<String>(
+                  value: selectedTitle,
+                  items: ['นาย', 'นาง', 'นางสาว'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedTitle = value!;
+                      _formData['title_name'] = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'คำนำหน้า',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  onSaved: (value) {
+                    _formData['title_name'] = value;
+                  },
+                ),
+                SizedBox(height: 8.0),
                 _buildTextFormField('first_name', 'ชื่อ'),
                 _buildTextFormField('last_name', 'นามสกุล'),
                 _buildTextFormField('id_card', 'เลขบัตรประชาชน'),
                 _buildTextFormField('phone', 'เบอร์โทร'),
-                _buildTextFormField('gender', 'เพศ'),
+                DropdownButtonFormField<String>(
+                  value: selectedGender,
+                  items: ['ชาย', 'หญิง', 'อื่นๆ'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedGender = value!;
+                      _formData['gender'] = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'เพศ',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                  ),
+                  onSaved: (value) {
+                    _formData['gender'] = value;
+                  },
+                ),
                 _buildTextFormField('date_birth', 'วันเกิด'),
                 _buildTextFormField('house_number', 'เลขบ้าน'),
                 _buildTextFormField('street', 'ถนน'),
@@ -76,6 +127,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 _buildTextFormField('subdistrict', 'ตําบล'),
                 _buildTextFormField('district', 'อําเภอ'),
                 _buildTextFormField('province', 'จังหวัด'),
+                _buildTextFormField('weight', 'น้ำหนัก', isNumeric: true),
+                _buildTextFormField('height', 'ส่วนสูง', isNumeric: true),
+                _buildTextFormField('waist', 'รอบเอว', isNumeric: true),
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _saveProfile,
@@ -104,19 +158,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  Widget _buildTextFormField(String key, String label) {
+  Widget _buildTextFormField(String key, String label, {bool isNumeric = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        initialValue: _formData[key],
+        initialValue: _formData[key]?.toString(),
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
         ),
+        keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
         onSaved: (value) {
-          _formData[key] = value;
+          _formData[key] = isNumeric ? double.tryParse(value!) : value;
         },
       ),
     );
