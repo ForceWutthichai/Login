@@ -42,6 +42,10 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _logout() {
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (profileData == null) {
@@ -58,7 +62,13 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
-        backgroundColor: Colors.teal,
+        backgroundColor: Color(0xFF2A6F97),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: _logout,
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -67,55 +77,92 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               SizedBox(height: 16.0),
               Text(
-                '${profileData!['first_name']} ${profileData!['last_name']}',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                profileData!['title_name'],
-                style: TextStyle(fontSize: 18, color: Colors.grey),
+                '${profileData!['title_name']} ${profileData!['first_name']} ${profileData!['last_name']}',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF003566),
+                ),
               ),
               SizedBox(height: 16.0),
               Card(
+                color: Color(0xFFD9D9D9),
                 margin: EdgeInsets.symmetric(vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
                 child: Column(
                   children: [
                     ListTile(
                       title: Text(
                         'Personal Information',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF003566),
+                        ),
                       ),
                     ),
                     Divider(),
-                    _buildProfileCard('ID Card', profileData!['id_card']),
-                    _buildProfileCard('Phone', profileData!['phone']),
-                    _buildProfileCard('Gender', profileData!['gender']),
-                    _buildProfileCard('Date of Birth', profileData!['date_birth']),
-                    _buildProfileCard('House Number', profileData!['house_number']),
-                    _buildProfileCard('Street', profileData!['street']),
-                    _buildProfileCard('Village', profileData!['village']),
-                    _buildProfileCard('Subdistrict', profileData!['subdistrict']),
-                    _buildProfileCard('District', profileData!['district']),
-                    _buildProfileCard('Province', profileData!['province']),
+                    _buildProfileCard('เลขบัตรประชาชน', profileData!['id_card']),
+                    _buildProfileCard('เบอร์โทร', profileData!['phone']),
+                    _buildProfileCard('เพศ', profileData!['gender']),
+                    _buildProfileCard('ปีเกิด', profileData!['date_birth']),
+                    _buildProfileCard('เลขบ้าน', profileData!['house_number']),
+                    _buildProfileCard('ถนน', profileData!['street']),
+                    _buildProfileCard('หมู่บ้าน', profileData!['village']),
+                    _buildProfileCard('ตําบล', profileData!['subdistrict']),
+                    _buildProfileCard('อําเภอ', profileData!['district']),
+                    _buildProfileCard('จังหวัด', profileData!['province']),
                   ],
                 ),
               ),
               Card(
+                color: Color(0xFFD9D9D9),
                 margin: EdgeInsets.symmetric(vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
                 child: Column(
                   children: [
                     ListTile(
                       title: Text(
                         'Health Information',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF003566),
+                        ),
                       ),
                     ),
                     Divider(),
-                    _buildProfileCard('Weight', profileData!['weight'].toString()),
-                    _buildProfileCard('Height', profileData!['height'].toString()),
-                    _buildProfileCard('Waist', profileData!['waist'].toString()),
-                    _buildProfileCard('BMI', profileData!['bmi'].toString()),
+                    _buildProfileCard('น้ำหนัก', profileData!['weight'].toString()),
+                    _buildProfileCard('ส่วนสูง', profileData!['height'].toString()),
+                    _buildProfileCard('รอบเอว', profileData!['waist'].toString()),
+                    _buildProfileCard('ค่า BMI', profileData!['bmi'].toString()),
+                    _buildProfileCard('ค่า รอบเอวต่อส่วนสูง', profileData!['waist_to_height_ratio'].toString()),
                   ],
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                child: Text(
+                  'กลับสู่หน้าล็อกอิน',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 20),
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  backgroundColor: Color(0xFF2A6F97),
                 ),
               ),
             ],
@@ -127,7 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildProfileCard(String title, String value) {
     return Card(
-      color: Colors.teal.shade50,
+      color: Color(0xFFEDF2F4),
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -135,11 +182,17 @@ class _ProfilePageState extends State<ProfilePage> {
       child: ListTile(
         title: Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF003566),
+          ),
         ),
         subtitle: Text(
           value,
-          style: TextStyle(fontSize: 16, color: Colors.teal.shade700),
+          style: TextStyle(
+            fontSize: 16,
+            color: Color(0xFF003566),
+          ),
         ),
       ),
     );

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:final_login/router/routes.dart';
+import 'package:final_login/screen/login.dart';
+import 'package:final_login/screen/register_page1.dart';
+import 'package:final_login/screen/profile.dart';
 import 'package:flutter/services.dart';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -10,33 +12,18 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  MyApp({super.key});
-  // ignore: library_private_types_in_public_api
-  static _MyAppState of(BuildContext context) =>
-      context.findAncestorStateOfType<_MyAppState>()!;
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final _appRouter = AppRouter();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-
-  // This widget is the root of your application.
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return MaterialApp(
       title: "Flutter Workshop",
       debugShowCheckedModeBanner: false,
-      // hook up router to MaterialApp
-      routerConfig: _appRouter.config(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/register_page1': (context) => RegisterPage1(),
+        '/profile': (context) => ProfilePage(userId: ModalRoute.of(context)!.settings.arguments as int),
+      },
     );
   }
 }
