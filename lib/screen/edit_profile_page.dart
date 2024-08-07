@@ -4,8 +4,9 @@ import 'dart:convert';
 
 class EditProfilePage extends StatefulWidget {
   final Map<String, dynamic> profileData;
+  final int userId;
 
-  EditProfilePage({required this.profileData});
+  EditProfilePage({required this.profileData, required this.userId});
 
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
@@ -26,7 +27,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       _formKey.currentState!.save();
       try {
         final response = await http.put(
-          Uri.parse('http://localhost:3000/profile/${_formData['id']}'),
+          Uri.parse('http://localhost:3000/profile/${widget.userId}'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(_formData),
         );
