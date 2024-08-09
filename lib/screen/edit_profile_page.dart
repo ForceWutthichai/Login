@@ -4,9 +4,8 @@ import 'dart:convert';
 
 class EditProfilePage extends StatefulWidget {
   final Map<String, dynamic> profileData;
-  final int userId;
 
-  EditProfilePage({required this.profileData, required this.userId});
+  EditProfilePage({required this.profileData});
 
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
@@ -15,23 +14,47 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
   late Map<String, dynamic> _formData;
-  late String selectedTitle;
-  late String selectedGender;
 
   @override
   void initState() {
     super.initState();
     _formData = Map<String, dynamic>.from(widget.profileData);
-    selectedTitle = _formData['title_name'];
-    selectedGender = _formData['gender'];
+  }
+
+  double calculateBMI(double weight, double height) {
+    return weight / ((height / 100) * (height / 100));
+  }
+
+  double calculateWaistToHeightRatio(double waist, double height) {
+    return waist / height;
+  }
+
+  void _recalculateHealthMetrics() {
+    if (_formData['weight'] != null && _formData['height'] != null) {
+      _formData['bmi'] = calculateBMI(
+        double.parse(_formData['weight']),
+        double.parse(_formData['height']),
+      ).toStringAsFixed(2);
+    }
+
+    if (_formData['waist'] != null && _formData['height'] != null) {
+      _formData['waist_to_height_ratio'] = calculateWaistToHeightRatio(
+        double.parse(_formData['waist']),
+        double.parse(_formData['height']),
+      ).toStringAsFixed(2);
+    }
   }
 
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      
+      // Recalculate BMI and Waist-to-Height Ratio before saving
+      _recalculateHealthMetrics();
+
       try {
         final response = await http.put(
-          Uri.parse('http://localhost:3000/profile/${widget.userId}'),
+          Uri.parse('http://localhost:3000/profile/${_formData['id']}'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(_formData),
         );
@@ -39,7 +62,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Profile updated successfully')),
           );
-          Navigator.pop(context, _formData);
+          Navigator.pop(context, true);  // Return true to indicate the profile was updated
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to update profile')),
@@ -67,59 +90,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                DropdownButtonFormField<String>(
-                  value: selectedTitle,
-                  items: ['นาย', 'นาง', 'นางสาว'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedTitle = value!;
-                      _formData['title_name'] = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'คำนำหน้า',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
-                  onSaved: (value) {
-                    _formData['title_name'] = value;
-                  },
-                ),
-                SizedBox(height: 8.0),
+                _buildTextFormField('title_name', 'คำนำหน้า'),
                 _buildTextFormField('first_name', 'ชื่อ'),
                 _buildTextFormField('last_name', 'นามสกุล'),
                 _buildTextFormField('id_card', 'เลขบัตรประชาชน'),
                 _buildTextFormField('phone', 'เบอร์โทร'),
-                DropdownButtonFormField<String>(
-                  value: selectedGender,
-                  items: ['ชาย', 'หญิง', 'อื่นๆ'].map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedGender = value!;
-                      _formData['gender'] = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'เพศ',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
-                  onSaved: (value) {
-                    _formData['gender'] = value;
-                  },
-                ),
+                _buildTextFormField('gender', 'เพศ'),
                 _buildTextFormField('date_birth', 'วันเกิด'),
                 _buildTextFormField('house_number', 'เลขบ้าน'),
                 _buildTextFormField('street', 'ถนน'),
@@ -162,7 +138,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextFormField(
-        initialValue: _formData[key]?.toString(),
+        initialValue: _formData[key],
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(
@@ -170,8 +146,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
         ),
         keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+        onChanged: (value) {
+          setState(() {
+            _formData[key] = value;
+            if (key == 'weight' || key == 'height' || key == 'waist') {
+              _recalculateHealthMetrics();
+            }
+          });
+        },
         onSaved: (value) {
-          _formData[key] = isNumeric ? double.tryParse(value!) : value;
+          _formData[key] = value;
         },
       ),
     );
